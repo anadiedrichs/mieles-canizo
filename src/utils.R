@@ -5,7 +5,7 @@ library(tibble)
 #' 
 load.raw.data <- function()
 {
-  dataset <- read_csv("data/Miel.concentraciones.en.microgramos.por.gramo.csv")
+  dataset <- read_csv("../data/Miel.concentraciones.en.microgramos.por.gramo.csv")
   #' Quitar columnas vacías
   vacias <- 29:ncol(dataset)
   dataset <- dataset[-vacias]
