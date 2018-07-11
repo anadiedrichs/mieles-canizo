@@ -42,8 +42,8 @@ media <- apply(data, 2, mean)
 std <- apply(data, 2, sd)
 data <- scale(data, center = media, scale = std)
 data <- as.data.frame(cbind(data,Region=dataset$Region))
-#data[-ncol(data)] <- sapply(data[-ncol(data)],as.numeric)
-#data$Region <- as.factor(data$Region)
+data[-ncol(data)] <- sapply(data[-ncol(data)],as.numeric)
+data$Region <- as.factor(data$Region)
 
 
 #'  Boxplot de distribución de variables por si está o no en zona Valle de Uco.
@@ -60,7 +60,6 @@ pairs(dataset[,2:7], pch = 19,  cex = 0.5,
       col = my_cols[data$Region],
       lower.panel=NULL)
 
-#' Li y Na parecieran ser variables candidatas de mayor peso en el modelo clasificador.
 #' ## Boxplot todos los datos
 boxplot(data[-ncol(data)])
 
