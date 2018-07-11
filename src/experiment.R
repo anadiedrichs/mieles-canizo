@@ -1,4 +1,4 @@
-
+#' ## Primeros experimentos con modelos machine learning 
 #' * Verificar que working directory es la misma carpeta/directorio donde se encuentra este archivo.
 #' * Ver working directory actual: usar getwd()
 #' * Modificar working directory: setwd("PATH/A/MI/CARPETA")
@@ -78,10 +78,19 @@ prp(rpart.model)
 printcp(rpart.model)
 plotcp(rpart.model)
 #' prediccion en conjunto de testeo
-pred <- predict(rpart.model,test)
-pred[which(pred > 0)] <- 1
-pred[which(pred <= 0)] <- -1
+pred <- predict(rpart.model,test, type="class")
 #' matriz de confusión
-# TODO error en las dimensiones de vector pred, no son iguales a length(test)
-# table(pred,test$label) 
-# confusionMatrix(table(pred,test$label))
+table(pred,test$label) 
+confusionMatrix(table(pred,test$label))
+
+#' ## Modelo SVM 
+#'
+library(e1071)
+svm.model <- svm(formula=as.factor(label)~.,data= train)
+summary(svm.model)
+#' prediccion en conjunto de testeo
+pred <- predict(svm.model,test, type="class")
+#' matriz de confusión
+table(pred,test$label) 
+confusionMatrix(table(pred,test$label))
+
