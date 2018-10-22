@@ -18,16 +18,16 @@ load.dataset <- function()
   dataset <- load.raw.data()
   # etiquetar caso binario
   vDeUco <- "Valle de Uco"
-  add_column(dataset,label=0)
-  dataset[dataset$`Zona geográfica` == vDeUco,"label"] <- 1
-  dataset[dataset$`Zona geográfica` != vDeUco,"label"] <- -1
+  add_column(dataset,label="Valle_de_Uco")
+  dataset[dataset$`Zona geográfica` == vDeUco,"label"] <- "V" #Valle de Uco
+  dataset[dataset$`Zona geográfica` != vDeUco,"label"] <- "O" # Otras regiones
   # normalizar
   quitar <- c(1,ncol(dataset))
   data <-  dataset[-quitar]
-  media <- apply(data, 2, mean)
-  std <- apply(data, 2, sd)
-  data <- scale(data, center = media, scale = std)
-  data <- as.data.frame(cbind(data,label=dataset$label))
+  media <- apply(dataset[-quitar], 2, mean)
+  std <- apply(dataset[-quitar], 2, sd)
+  dataset[-quitar] <- scale(dataset[-quitar], center = media, scale = std)
+ # data <- data.frame(cbind(data,label=dataset$label,stringsAsFactors=FALSE))
   #data$label <- as.factor(data$label)
-  return(list(dataset = data, media = media, std = std, raw=dataset))
+  return(list(dataset = dataset[-1], media = media, std = std, raw=dataset))
 }
