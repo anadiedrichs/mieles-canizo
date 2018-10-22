@@ -1,4 +1,5 @@
 source("utils.R")
+library(party)
 library(caret)
 
 d <- load.dataset()
@@ -77,6 +78,7 @@ table.results <- rbind(table.results,d)
 
 #' ## CTree or conditional inference tree
 set.seed(825)
+require(party)
 model.ctree <- train(as.factor(label)~., data=train, 
                   trControl=train_control, method="ctree",metric="Accuracy")
 print(model.ctree)
@@ -91,20 +93,21 @@ print(c)
 d <- as.data.frame(cbind(model="ctree",t(c$overall),t(c$byClass)))
 table.results <- rbind(table.results,d)
 
-#' ## LDA o linear discriminant analysis
-#' 
-set.seed(825)
-model.lda <- train(as.factor(label)~., data=train, 
-                     trControl=train_control, method="lda",metric="Accuracy")
-print(model.lda)
+# decidimos quitar LDA en la reunión 2018-09-27
+# ## LDA o linear discriminant analysis
+# 
+# set.seed(825)
+# model.lda <- train(as.factor(label)~., data=train, 
+#                     trControl=train_control, method="lda",metric="Accuracy")
+# print(model.lda)
 #' modelo final 
-print(model.lda$finalModel)
+# print(model.lda$finalModel)
 #' Predicción en test-set
-pred <- predict(model.lda,test)
-c <- confusionMatrix(as.factor(pred), as.factor(test$label),mode = "prec_recall")
-print(c)
-d <- as.data.frame(cbind(model="LDA",t(c$overall),t(c$byClass)))
-table.results <- rbind(table.results,d)
+# pred <- predict(model.lda,test)
+# c <- confusionMatrix(as.factor(pred), as.factor(test$label),mode = "prec_recall")
+# print(c)
+# d <- as.data.frame(cbind(model="LDA",t(c$overall),t(c$byClass)))
+# table.results <- rbind(table.results,d)
 
 #' ## C5.0
 #' 
