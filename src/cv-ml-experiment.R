@@ -37,30 +37,6 @@ c <- confusionMatrix(as.factor(pred), as.factor(test$label),mode = "prec_recall"
 print(c)
 table.results <- as.data.frame(cbind(model="RF",t(c$overall),t(c$byClass)))
 
-#' ### RF tunegrid mtry
-#' 
-#' Lo siguiente puede tardar en ejecutarse.
-set.seed(825)
-#mySeeds <- sapply(simplify = FALSE, 1:11, function(u) sample(10^4, 10))
-train_control <- trainControl(method="cv", number=10, )
-tunegrid <- expand.grid(.mtry=c(1:27))
-model.rf2 <- train(as.factor(label)~., data=train, 
-                  trControl=train_control, method="rf",metric=METRIC, tuneGrid= tunegrid)
-
-#'  ### Results of random forest model
-print(model.rf2)
-plot(model.rf2)
-print(model.rf2$finalModel)
-#' ### Variable importance
-varImp(model.rf2)
-plot(varImp(model.rf2))
-#' Predicción en test-set
-pred <- predict(model.rf2,test)
-c <- confusionMatrix(as.factor(pred), as.factor(test$label),mode = "prec_recall")
-print(c)
-d <- as.data.frame(cbind(model="rf-tunegrid",t(c$overall),t(c$byClass)))
-table.results <- rbind(table.results,d)
-
 
 
 #' ## CTree or conditional inference tree
@@ -154,3 +130,43 @@ print(table.results)
 #' guardar resultados a disco
 #' 
 write.csv(table.results,file="results.csv")
+
+lift_results <- data.frame(Class = test$label)
+lift_results$RF <- predict(model.rf,test,type = "prob")[,"V"]
+lift_results$C5.0 <- predict(model.c50,test,type = "prob")[,"V"]
+lift_results$ctree <- predict(model.ctree,test,type = "prob")[,"V"]
+lift_results$rpart <- predict(model.rpart,test,type = "prob")[,"V"]
+head(lift_results)
+
+#' Dibujo de la ROC curve ¿COMO LA INTERPRETAMOS 
+
+trellis.par.set(caretTheme())
+lift_obj <- lift(Class ~ RF + ctree + C5.0 + rpart, data = lift_results)
+plot(lift_obj, values = 80, auto.key = list(columns = 3,
+                                            lines = TRUE,
+                                            points = FALSE))
+
+ggplot(lift_obj, values = 60)
+
+#' Dibujo la curva ROC para cada modelo
+roc.rf <- predict(model.rf,test,type = "prob")
+roc.c50 <- predict(model.c50,test,type = "prob")
+roc.ctree <- predict(model.ctree,test,type = "prob")
+roc.rpart <- predict(model.rpart,test,type = "prob")
+
+result.roc <- roc(test$label, roc.rf$V) # Draw ROC curve.
+plot(result.roc, print.thres="best", print.thres.best.method="closest.topleft")
+
+result.coords <- coords(result.roc, "best", best.method="closest.topleft", ret=c("threshold", "accuracy"))
+print(result.coords)#to get threshold and accuracy
+
+result.roc <- roc(test$label, roc.c50$V) # Draw ROC curve.
+plot(result.roc, print.thres="best", print.thres.best.method="closest.topleft")
+
+
+result.roc <- roc(test$label, roc.ctree$V) # Draw ROC curve.
+plot(result.roc, print.thres="best", print.thres.best.method="closest.topleft")
+
+
+result.roc <- roc(test$label, roc.rpart$V) # Draw ROC curve.
+plot(result.roc, print.thres="best", print.thres.best.method="closest.topleft")
