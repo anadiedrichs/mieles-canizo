@@ -22,7 +22,7 @@ train_control <- trainControl(method="cv", number=10,seeds = mySeeds
 #' ### RF default
 set.seed(825)
 model.rf <- train(as.factor(label)~., data=train, 
-                  trControl=train_control, method="rf",metric=METRIC)
+                  trControl=train_control, method="rf",metric=METRIC, importance=T)
 
 #'  ### Results of random forest model
 print(model.rf)
@@ -148,6 +148,7 @@ plot(lift_obj, values = 80, auto.key = list(columns = 3,
 
 ggplot(lift_obj, values = 60)
 
+library(pROC)
 #' Dibujo la curva ROC para cada modelo
 roc.rf <- predict(model.rf,test,type = "prob")
 roc.c50 <- predict(model.c50,test,type = "prob")
@@ -155,18 +156,63 @@ roc.ctree <- predict(model.ctree,test,type = "prob")
 roc.rpart <- predict(model.rpart,test,type = "prob")
 
 result.roc <- roc(test$label, roc.rf$V) # Draw ROC curve.
-plot(result.roc, print.thres="best", print.thres.best.method="closest.topleft")
+plot(result.roc, print.thres="best", print.thres.best.method="closest.topleft", col="blue")
 
 result.coords <- coords(result.roc, "best", best.method="closest.topleft", ret=c("threshold", "accuracy"))
 print(result.coords)#to get threshold and accuracy
 
 result.roc <- roc(test$label, roc.c50$V) # Draw ROC curve.
-plot(result.roc, print.thres="best", print.thres.best.method="closest.topleft")
+plot(result.roc, print.thres="best", print.thres.best.method="closest.topleft",col="red",add=TRUE)
 
 
 result.roc <- roc(test$label, roc.ctree$V) # Draw ROC curve.
-plot(result.roc, print.thres="best", print.thres.best.method="closest.topleft")
+plot(result.roc, print.thres="best", print.thres.best.method="closest.topleft",col="green",add=TRUE)
 
 
 result.roc <- roc(test$label, roc.rpart$V) # Draw ROC curve.
-plot(result.roc, print.thres="best", print.thres.best.method="closest.topleft")
+plot(result.roc, print.thres="best", print.thres.best.method="closest.topleft",col="orange",add=TRUE)
+###
+# roc version 2
+
+roc1 <- roc(test$label, roc.rf$V) # Draw ROC curve.
+plot(roc1, print.auc = TRUE,print.thres.best.method="closest.topleft", col="blue")
+
+roc2 <- roc(test$label, roc.c50$V) # Draw ROC curve.
+plot(roc2, print.auc = TRUE,col="red",add=TRUE)
+
+
+roc3 <- roc(test$label, roc.ctree$V) # Draw ROC curve.
+plot(roc3, print.auc = TRUE,col="green",add=TRUE)
+
+
+roc4 <- roc(test$label, roc.rpart$V) # Draw ROC curve.
+plot(roc4,print.auc = TRUE,col="orange",add=TRUE)
+# roc version 3, usando libreria ggplot2 y funcion ggroc
+library(ggplot2)
+g2 <- ggroc(list(RF=roc1, c50=roc2, ctree=roc3,rpart=roc4 ),linetype=2)
+g2
+g2 <- ggroc(list(RF=roc1, c50=roc2, ctree=roc3,rpart=roc4 ),aes="linetype", color="blue")
+g2
+# EL MEJOR
+roc.list <- list(RF=roc1, C.50=roc2, Ctree=roc3,RPart=roc4 )
+g.group <- ggroc(roc.list, aes="group")
+g.group
+p <- g.group + facet_grid(.~name)
+p
+
+
+library(magrittr)
+
+len <- length(roc.list)
+vars <- c("RF", "RPart","Ctree","C.50")
+#t(sapply(unlist(lapply(roc.list,auc)),round,3))
+auclabels <- lapply(roc.list,auc) %>%
+             unlist %>% 
+             sapply(round,3) 
+
+auclabels <- paste("AUC:",auclabels)
+
+dat <- data.frame(x = rep(.5, len), y = rep(.5, len), name=vars, 
+                  labs=auclabels)
+
+p + geom_text(aes(x, y, label=labs, group=NULL),data=dat)
