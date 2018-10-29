@@ -131,22 +131,6 @@ print(table.results)
 #' 
 write.csv(table.results,file="results.csv")
 
-lift_results <- data.frame(Class = test$label)
-lift_results$RF <- predict(model.rf,test,type = "prob")[,"V"]
-lift_results$C5.0 <- predict(model.c50,test,type = "prob")[,"V"]
-lift_results$ctree <- predict(model.ctree,test,type = "prob")[,"V"]
-lift_results$rpart <- predict(model.rpart,test,type = "prob")[,"V"]
-head(lift_results)
-
-#' Dibujo de la ROC curve ¿COMO LA INTERPRETAMOS 
-
-trellis.par.set(caretTheme())
-lift_obj <- lift(Class ~ RF + ctree + C5.0 + rpart, data = lift_results)
-plot(lift_obj, values = 80, auto.key = list(columns = 3,
-                                            lines = TRUE,
-                                            points = FALSE))
-
-ggplot(lift_obj, values = 60)
 
 library(pROC)
 #' Dibujo la curva ROC para cada modelo
