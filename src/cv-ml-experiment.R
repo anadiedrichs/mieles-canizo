@@ -173,6 +173,5 @@ auclabels <- paste("AUC:",auclabels)
 dat <- data.frame(x = rep(.5, len), y = rep(.5, len), name=vars, 
                   labs=auclabels)
 g.group <- ggroc(roc.list, aes="group")
-g.group
 p <- g.group + facet_grid(.~name)
 p + geom_text(aes(x, y, label=labs, group=NULL),data=dat)
