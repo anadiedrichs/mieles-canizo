@@ -101,8 +101,11 @@ train_control <- trainControl(method="cv", number=10,seeds = mySeeds
 #train_control_c <- trainControl(method="cv", number=10) # issue: dimension of seeds should be number of resamples
 
 set.seed(SEED)
+#c50Grid <- expand.grid(trials = c(1:9, (1:10)*10),model = c("tree", "rules"),winnow = c(TRUE, FALSE))
+c50Grid <- expand.grid(trials = 1,model = "tree",winnow = c(TRUE, FALSE))
+
 model.c50 <- train(as.factor(label)~., data=train, 
-                   trControl=train_control, method="C5.0",metric=METRIC)
+                   trControl=train_control, method="C5.0",metric=METRIC,tuneGrid=c50Grid )
 #' salida modelos
 print(model.c50)
 #' resumen 
@@ -113,7 +116,7 @@ print(model.c50$finalModel$tuneValue)
 #' Más texto o verbosidad 
 print(model.c50$finalModel)
 #' Plot del árbol de decisión
-mm <- C5.0(as.factor(label)~., data=train,trials = 20, rules = FALSE, winnow=FALSE)
+mm <- C5.0(as.factor(label)~., data=train,trials = 1, rules = FALSE, winnow=FALSE)
 plot(mm)
 #summary(mm)
 
