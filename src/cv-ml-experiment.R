@@ -31,7 +31,7 @@ print(model.rf$finalModel)
 #' ### Variable importance
 varImp(model.rf)
 plot(varImp(model.rf))
-#' Predicción en test-set
+#' Predicción en conjunto de testeo test-set
 pred <- predict(model.rf,test)
 c <- confusionMatrix(as.factor(pred), as.factor(test$label),mode = "prec_recall")
 print(c)
@@ -46,6 +46,7 @@ model.ctree <- train(as.factor(label)~., data=train,
                   trControl=train_control, method="ctree",metric=METRIC)
 print(model.ctree)
 plot(model.ctree)
+#v <- varImp(model.ctree)
 #' modelo final 
 print(model.ctree$finalModel)
 plot(model.ctree$finalModel)
