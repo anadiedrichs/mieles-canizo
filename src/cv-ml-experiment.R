@@ -58,11 +58,11 @@ table.results <- rbind(table.results,d)
 
 #' ## Rpart
 #' 
-set.seed(825)
 require(rpart)
 library(rpart.plot)
 #train_control_d <- trainControl(method="cv", number=10, seeds = mySeeds, classProbs = TRUE)
 
+set.seed(825)
 model.rpart <- train(x = train[,-ncol(train)], y = as.factor(train$label),  
                    trControl=train_control, method="rpart",metric=METRIC)
 #' resumen experimental
@@ -79,20 +79,25 @@ c <- confusionMatrix(as.factor(pred), as.factor(test$label),mode = "prec_recall"
 print(c)
 d <- as.data.frame(cbind(model="rpart",t(c$overall),t(c$byClass)))
 table.results <- rbind(table.results,d)
+
+rpart.plot(model.rpart$finalModel) # plot model tree
+
 #' ## C5.0
 #' 
-set.seed(825)
 library(C50)
 
+set.seed(825)
 mySeeds <- sapply(simplify = FALSE, 1:11, function(u) sample(10^4, 4))
 
 METRIC <- "ROC" #Accuracy
+
 train_control <- trainControl(method="cv", number=10,seeds = mySeeds
                               ,classProbs=TRUE, summaryFunction = twoClassSummary)
 
 
 #train_control_c <- trainControl(method="cv", number=10) # issue: dimension of seeds should be number of resamples
 
+set.seed(825)
 model.c50 <- train(as.factor(label)~., data=train, 
                    trControl=train_control, method="C5.0",metric=METRIC)
 #' salida modelos
