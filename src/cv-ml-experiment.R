@@ -1,17 +1,18 @@
 source("utils.R")
 library(party)
 library(caret)
-
+SEED <- 825 # seed semilla para números aleatorios
 d <- load.dataset()
 data <- d$dataset
 #' Desordenar el dataset previo al entrenamiento
 #' y dividir en conjuntos de entrenamiento y testeo
-
+set.seed(SEED)
 index <- sample(1:nrow(data), round(nrow(data) * 0.7))
 train <- data[index,]
 test <- data[-index,]
 
 #' Training with cross-validation k=10
+set.seed(SEED)
 mySeeds <- sapply(simplify = FALSE, 1:11, function(u) sample(10^4, 3))
 
 METRIC <- "ROC" #Accuracy
@@ -20,7 +21,7 @@ train_control <- trainControl(method="cv", number=10,seeds = mySeeds
 
 #' ## RANDOM FOREST MODEL
 #' ### RF default
-set.seed(825)
+set.seed(SEED)
 model.rf <- train(as.factor(label)~., data=train, 
                   trControl=train_control, method="rf",metric=METRIC, importance=T)
 
@@ -40,8 +41,9 @@ table.results <- as.data.frame(cbind(model="RF",t(c$overall),t(c$byClass)))
 
 
 #' ## CTree or conditional inference tree
-set.seed(825)
+
 require(party)
+set.seed(SEED)
 model.ctree <- train(as.factor(label)~., data=train, 
                   trControl=train_control, method="ctree",metric=METRIC)
 print(model.ctree)
@@ -63,7 +65,7 @@ require(rpart)
 library(rpart.plot)
 #train_control_d <- trainControl(method="cv", number=10, seeds = mySeeds, classProbs = TRUE)
 
-set.seed(825)
+set.seed(SEED)
 model.rpart <- train(x = train[,-ncol(train)], y = as.factor(train$label),  
                    trControl=train_control, method="rpart",metric=METRIC)
 #' resumen experimental
@@ -87,7 +89,7 @@ rpart.plot(model.rpart$finalModel) # plot model tree
 #' 
 library(C50)
 
-set.seed(825)
+set.seed(SEED)
 mySeeds <- sapply(simplify = FALSE, 1:11, function(u) sample(10^4, 4))
 
 METRIC <- "ROC" #Accuracy
@@ -98,7 +100,7 @@ train_control <- trainControl(method="cv", number=10,seeds = mySeeds
 
 #train_control_c <- trainControl(method="cv", number=10) # issue: dimension of seeds should be number of resamples
 
-set.seed(825)
+set.seed(SEED)
 model.c50 <- train(as.factor(label)~., data=train, 
                    trControl=train_control, method="C5.0",metric=METRIC)
 #' salida modelos
